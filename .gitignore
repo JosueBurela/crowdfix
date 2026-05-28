@@ -1,0 +1,14 @@
+# Dependencias
+node_modules/
+npm-debug.log
+
+# Variables de entorno (¡MUY IMPORTANTE!)
+.env
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Carpetas de compilación o build
+dist/
+build/
