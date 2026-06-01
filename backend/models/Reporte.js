@@ -7,11 +7,17 @@ const reporteSchema = new mongoose.Schema({
   latitud: { type: Number, required: true },
   longitud: { type: Number, required: true },
   imagenUrl: { type: String, default: '' },
-  estado: { type: String, enum: ['Activo', 'En Progreso', 'Resuelto'], default: 'Activo' },
+  
+  // AQUÍ AGREGAMOS 'Bloqueado' AL ENUM
+  estado: { type: String, enum: ['Activo', 'En Progreso', 'Resuelto', 'Bloqueado'], default: 'Activo' },
+  
+  // NUEVOS CAMPOS PARA EL BOT Y MODERACIÓN
+  motivoBloqueo: { type: String, default: '' },
+  revisadoPorBot: { type: Boolean, default: false },
   
   // TOQUES DE RED SOCIAL (Estilo Reddit)
-  votos: { type: Number, default: 0 }, // Para subir de relevancia el reporte
-  votosUsuarios: [{ type: String }], // Quiénes ya votaron para que no hagan spam
+  votos: { type: Number, default: 0 }, 
+  votosUsuarios: [{ type: String }], 
   comentarios: [
     {
       usuario: { type: String, required: true },
