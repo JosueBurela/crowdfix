@@ -14,7 +14,7 @@ const app = express();
 
 // Middlewares globales (CORS configurado para aceptar Cookies)
 app.use(cors({
-  origin: 'http://localhost:5173', // Debe apuntar exacto a tu frontend
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Permite configurar dinámicamente el origen en producción
   credentials: true // Permite que viajen las cookies
 }));
 app.use(express.json()); 

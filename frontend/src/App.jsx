@@ -1,3 +1,4 @@
+const API_URL = import.meta.env.VITE_API_URL || `${API_URL}`;
 import React, { useState, useEffect } from 'react';
 
 // ============================================================================
@@ -77,7 +78,7 @@ const VistaPerfil = ({ emailPerfil, usuarioLogueado, reportes, onVolver, onAbrir
     const cargar = async () => {
       setCargando(true);
       try {
-        const res = await fetch(`http://localhost:5000/api/auth/perfil/${encodeURIComponent(emailPerfil)}`, { credentials: 'include' });
+        const res = await fetch(`${API_URL}/api/auth/perfil/${encodeURIComponent(emailPerfil)}`, { credentials: 'include' });
         const data = await res.json();
         if (res.ok) setPerfilData(data);
       } catch (err) { console.error(err); }
@@ -105,7 +106,7 @@ const VistaPerfil = ({ emailPerfil, usuarioLogueado, reportes, onVolver, onAbrir
     fd.append('bannerPerfil', file);
     fd.append('datos', JSON.stringify({ nombre: usuarioLogueado.nombre, email: usuarioLogueado.email, comunidad: usuarioLogueado.comunidad }));
     try {
-      const res = await fetch('http://localhost:5000/api/auth/profile', { method: 'PUT', credentials: 'include', body: fd });
+      const res = await fetch(`${API_URL}/api/auth/profile`, { method: 'PUT', credentials: 'include', body: fd });
       const data = await res.json();
       if (res.ok) {
         setPerfilData(prev => ({ ...prev, bannerUrl: data.usuario.bannerUrl }));
@@ -249,7 +250,7 @@ const VistaAdmin = ({ adminStats, recargarDatos }) => {
     const motivo = window.prompt("¿Motivo del bloqueo? (Se le notificará al usuario):");
     if (!motivo) return;
     try {
-      await fetch(`http://localhost:5000/api/admin/bloquear-reporte/${id}`, {
+      await fetch(`${API_URL}/api/admin/bloquear-reporte/${id}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ motivo }), credentials: 'include'
       });
       recargarDatos();
@@ -259,7 +260,7 @@ const VistaAdmin = ({ adminStats, recargarDatos }) => {
   const reactivarReporte = async (id) => {
     if (!window.confirm("¿Reactivar este reporte para que vuelva a ser público?")) return;
     try {
-      await fetch(`http://localhost:5000/api/admin/reactivar-reporte/${id}`, { method: 'POST', credentials: 'include' });
+      await fetch(`${API_URL}/api/admin/reactivar-reporte/${id}`, { method: 'POST', credentials: 'include' });
       recargarDatos();
     } catch (err) { alert("Error al reactivar"); }
   };
@@ -267,7 +268,7 @@ const VistaAdmin = ({ adminStats, recargarDatos }) => {
   const enviarRespuestaApelacion = async (id, texto) => {
     if (!texto.trim()) return;
     try {
-      await fetch(`http://localhost:5000/api/admin/apelacion/${id}`, {
+      await fetch(`${API_URL}/api/admin/apelacion/${id}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ texto }), credentials: 'include'
       });
@@ -452,7 +453,7 @@ function App() {
   useEffect(() => {
     const init = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/auth/me', { credentials: 'include' });
+        const res = await fetch(`${API_URL}/api/auth/me`, { credentials: 'include' });
         const data = await res.json();
         if (res.ok) setUsuarioLogueado(data.usuario);
       } catch {} finally { setVerificando(false); }
@@ -474,7 +475,7 @@ function App() {
     if (usuarioLogueado) {
       intervalo = setInterval(async () => {
         try {
-          const resRep = await fetch('http://localhost:5000/api/reportes');
+          const resRep = await fetch(`${API_URL}/api/reportes`);
           if (resRep.ok) {
             const dataRep = await resRep.json();
             setReportes(dataRep);
@@ -483,13 +484,13 @@ function App() {
               return dataRep.find(r => r._id === prev._id) || prev;
             });
           }
-          const resNot = await fetch('http://localhost:5000/api/auth/notificaciones', { credentials: 'include' });
+          const resNot = await fetch(`${API_URL}/api/auth/notificaciones`, { credentials: 'include' });
           if (resNot.ok) {
             const dataNot = await resNot.json();
             setNotificaciones(dataNot.reverse());
           }
           if (usuarioLogueado.email === 'admin@crowdfix.com') {
-            const resAdmin = await fetch('http://localhost:5000/api/admin/stats', { credentials: 'include' });
+            const resAdmin = await fetch(`${API_URL}/api/admin/stats`, { credentials: 'include' });
             if (resAdmin.ok) setAdminStats(await resAdmin.json());
           }
         } catch (err) { console.error("Error actualizando datos en vivo", err); }
@@ -500,28 +501,28 @@ function App() {
 
   const fetchReportes = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/reportes');
+      const res = await fetch(`${API_URL}/api/reportes`);
       const data = await res.json();
       if(res.ok) setReportes(data);
     } catch(err) { console.error(err); }
   };
   const fetchCategorias = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/reportes/categorias');
+      const res = await fetch(`${API_URL}/api/reportes/categorias`);
       const data = await res.json();
       if(res.ok) setCategorias(data);
     } catch(err) { console.error(err); }
   };
   const fetchNotificaciones = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/notificaciones', { credentials: 'include' });
+      const res = await fetch(`${API_URL}/api/auth/notificaciones`, { credentials: 'include' });
       const data = await res.json();
       if(res.ok) setNotificaciones(data.reverse()); 
     } catch(err) { console.error(err); }
   };
   const cargarAdminStats = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/admin/stats', { credentials: 'include' });
+      const res = await fetch(`${API_URL}/api/admin/stats`, { credentials: 'include' });
       if(res.ok) setAdminStats(await res.json());
     } catch(err) { console.error(err); }
   };
@@ -530,7 +531,7 @@ function App() {
     e.preventDefault();
     const endpoint = esRegistro ? 'register' : 'login';
     try {
-      const res = await fetch(`http://localhost:5000/api/auth/${endpoint}`, {
+      const res = await fetch(`${API_URL}/api/auth/${endpoint}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         credentials: 'include', body: JSON.stringify(esRegistro ? { nombre, email, password, comunidad } : { email, password })
       });
@@ -570,7 +571,7 @@ function App() {
     archivos.forEach(a => fd.append('archivos', a));
     
     try {
-      const res = await fetch('http://localhost:5000/api/reportes', { method: 'POST', body: fd });
+      const res = await fetch(`${API_URL}/api/reportes`, { method: 'POST', body: fd });
       if (res.ok) { 
         const data = await res.json();
         if (data.estado === 'Bloqueado') {
@@ -592,14 +593,14 @@ function App() {
     e.stopPropagation();
     const nuevo = window.prompt("Edita tu publicación:", tituloActual);
     if (!nuevo || nuevo === tituloActual) return;
-    await fetch(`http://localhost:5000/api/reportes/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ titulo: nuevo }) });
+    await fetch(`${API_URL}/api/reportes/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ titulo: nuevo }) });
     fetchReportes();
   };
 
   const manejarEliminarReporte = async (id, e) => {
     e.stopPropagation();
     if (!window.confirm("¿Seguro que deseas eliminar esta publicación?")) return;
-    await fetch(`http://localhost:5000/api/reportes/${id}`, { method: 'DELETE' });
+    await fetch(`${API_URL}/api/reportes/${id}`, { method: 'DELETE' });
     fetchReportes(); if(reporteSeleccionado?._id === id) setReporteSeleccionado(null);
   };
 
@@ -608,9 +609,9 @@ function App() {
     const formData = new FormData();
     formData.append('usuario', usuarioLogueado.nombre); formData.append('autorEmail', usuarioLogueado.email); formData.append('autorFoto', usuarioLogueado.fotoPerfilUrl || ''); formData.append('texto', textoComentario);
     archivosComentario.forEach(archivo => formData.append('archivosComentario', archivo));
-    const res = await fetch(`http://localhost:5000/api/reportes/${reporteSeleccionado._id}/comentar`, { method: 'POST', body: formData });
+    const res = await fetch(`${API_URL}/api/reportes/${reporteSeleccionado._id}/comentar`, { method: 'POST', body: formData });
     if (res.ok) { setTextoComentario(''); setArchivosComentario([]); setPreviewsComentario([]); setMostrarCajaComentario(false); fetchReportes(); 
-      const updated = await fetch('http://localhost:5000/api/reportes').then(r => r.json());
+      const updated = await fetch(`${API_URL}/api/reportes`).then(r => r.json());
       setReporteSeleccionado(updated.find(r => r._id === reporteSeleccionado._id));
     }
   };
@@ -618,13 +619,13 @@ function App() {
   const manejarEditarComentario = async (idReporte, fecha, textoActual) => {
     const nuevo = window.prompt("Edita tu respuesta:", textoActual);
     if (!nuevo || nuevo === textoActual) return;
-    await fetch(`http://localhost:5000/api/reportes/${idReporte}/comentar/${fecha}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: nuevo }) });
-    fetchReportes(); const updated = await fetch('http://localhost:5000/api/reportes').then(r => r.json()); setReporteSeleccionado(updated.find(r => r._id === reporteSeleccionado._id));
+    await fetch(`${API_URL}/api/reportes/${idReporte}/comentar/${fecha}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: nuevo }) });
+    fetchReportes(); const updated = await fetch(`${API_URL}/api/reportes`).then(r => r.json()); setReporteSeleccionado(updated.find(r => r._id === reporteSeleccionado._id));
   };
   const manejarEliminarComentario = async (idReporte, fecha) => {
     if (!window.confirm("¿Eliminar tu respuesta?")) return;
-    await fetch(`http://localhost:5000/api/reportes/${idReporte}/comentar/${fecha}`, { method: 'DELETE' });
-    fetchReportes(); const updated = await fetch('http://localhost:5000/api/reportes').then(r => r.json()); setReporteSeleccionado(updated.find(r => r._id === reporteSeleccionado._id));
+    await fetch(`${API_URL}/api/reportes/${idReporte}/comentar/${fecha}`, { method: 'DELETE' });
+    fetchReportes(); const updated = await fetch(`${API_URL}/api/reportes`).then(r => r.json()); setReporteSeleccionado(updated.find(r => r._id === reporteSeleccionado._id));
   };
 
   const manejarEnviarApelacionUsuario = async (e, idReporte) => {
@@ -632,7 +633,7 @@ function App() {
     const texto = e.target.textoApelacion.value;
     if (!texto.trim()) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/reportes/${idReporte}/apelacion`, {
+      const res = await fetch(`${API_URL}/api/reportes/${idReporte}/apelacion`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usuario: usuarioLogueado.nombre, texto })
       });
@@ -651,7 +652,7 @@ function App() {
     e.preventDefault();
     const fd = new FormData(); if (fileFoto) fd.append('fotoPerfil', fileFoto);
     fd.append('datos', JSON.stringify({ nombre: configNombre, email: configEmail, comunidad: configComunidad, currentPassword: configCurrentPassword, newPassword: configNewPassword }));
-    const res = await fetch('http://localhost:5000/api/auth/profile', { method: 'PUT', credentials: 'include', body: fd });
+    const res = await fetch(`${API_URL}/api/auth/profile`, { method: 'PUT', credentials: 'include', body: fd });
     const data = await res.json();
     if (res.ok) { setUsuarioLogueado(data.usuario); setShowConfig(false); fetchReportes(); alert("Perfil actualizado."); } else { alert(data.mensaje); }
   };
@@ -686,7 +687,7 @@ function App() {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/reportes/${reporte._id}/oficio-formal`, { 
+      const res = await fetch(`${API_URL}/api/reportes/${reporte._id}/oficio-formal`, { 
         method: 'POST',
         credentials: 'include' 
       });
@@ -858,7 +859,7 @@ function App() {
           </div>
           <div className="flex gap-2">
             <button onClick={() => {abrirConfiguracion(); setMenuMobileAbierto(false);}} className="flex-1 text-sm bg-slate-200 text-slate-700 px-3 py-2.5 rounded-xl font-bold transition">⚙️ Ajustes</button>
-            <button onClick={async () => { await fetch('http://localhost:5000/api/auth/logout', {method:'POST', credentials:'include'}); window.location.reload(); }} className="flex-1 text-sm bg-red-100 text-red-600 px-3 py-2.5 rounded-xl font-bold transition">Salir</button>
+            <button onClick={async () => { await fetch(`${API_URL}/api/auth/logout`, {method:'POST', credentials:'include'}); window.location.reload(); }} className="flex-1 text-sm bg-red-100 text-red-600 px-3 py-2.5 rounded-xl font-bold transition">Salir</button>
           </div>
         </div>
         
@@ -920,7 +921,7 @@ function App() {
                   <span className="font-black">Buzón de Alertas</span>
                   {notificacionesNoLeidas > 0 && (
                     <button onClick={async () => {
-                      await fetch('http://localhost:5000/api/auth/notificaciones/leer', {method:'POST', credentials:'include'});
+                      await fetch(`${API_URL}/api/auth/notificaciones/leer`, {method:'POST', credentials:'include'});
                       fetchNotificaciones();
                     }} className="text-xs text-blue-300 hover:text-white font-bold">Marcar leídas</button>
                   )}
@@ -954,7 +955,7 @@ function App() {
           </div>
           <img src={usuarioLogueado.fotoPerfilUrl || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'} className="w-12 h-12 rounded-full border shadow-sm object-cover cursor-pointer hover:ring-2 hover:ring-blue-400" alt="pfp" onClick={() => verPerfil(usuarioLogueado.email)} />
           <button onClick={abrirConfiguracion} className="text-xl bg-slate-100 hover:bg-slate-200 w-12 h-12 rounded-full flex items-center justify-center transition">⚙️</button>
-          <button onClick={async () => { await fetch('http://localhost:5000/api/auth/logout', {method:'POST', credentials:'include'}); window.location.reload(); }} className="font-bold text-red-500 hover:bg-red-50 px-5 py-2.5 rounded-xl transition border border-transparent hover:border-red-200">Salir</button>
+          <button onClick={async () => { await fetch(`${API_URL}/api/auth/logout`, {method:'POST', credentials:'include'}); window.location.reload(); }} className="font-bold text-red-500 hover:bg-red-50 px-5 py-2.5 rounded-xl transition border border-transparent hover:border-red-200">Salir</button>
         </div>
       </nav>
 
@@ -1198,7 +1199,7 @@ function App() {
                     <article key={r._id} onClick={() => setReporteSeleccionado(r)} className={`bg-white border shadow-sm rounded-3xl p-6 lg:p-8 flex flex-col sm:flex-row gap-6 hover:shadow-md transition cursor-pointer group relative overflow-hidden ${esAlerta ? 'border-red-400' : 'border-slate-200'}`}>
                       {esAlerta && <div className="absolute top-0 left-0 w-1.5 h-full bg-red-500 animate-pulse"></div>}
                       <div className="flex flex-row sm:flex-col items-center justify-between sm:justify-start bg-slate-50 rounded-2xl p-3 h-fit sm:min-w-[70px] border">
-                        <button onClick={async (e) => { e.stopPropagation(); await fetch(`http://localhost:5000/api/reportes/${r._id}/votar`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({emailUsuario: usuarioLogueado.email})}); fetchReportes(); }} className={`text-3xl font-black transition ${haVotado ? 'text-orange-500 drop-shadow-md' : 'text-slate-300 hover:text-orange-400'}`}>▲</button>
+                        <button onClick={async (e) => { e.stopPropagation(); await fetch(`${API_URL}/api/reportes/${r._id}/votar`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({emailUsuario: usuarioLogueado.email})}); fetchReportes(); }} className={`text-3xl font-black transition ${haVotado ? 'text-orange-500 drop-shadow-md' : 'text-slate-300 hover:text-orange-400'}`}>▲</button>
                         <span className={`font-black text-xl sm:my-2 ${haVotado ? 'text-orange-600' : 'text-slate-600'}`}>{r.votos}</span>
                       </div>
                       <div className="flex-1 min-w-0">
